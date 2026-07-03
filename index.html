@@ -52,6 +52,12 @@
     backdrop-filter: blur(10px);
     padding: 0.5rem 1rem;
     border-radius: 999px;
+    opacity: 1;
+    transition: opacity 0.35s ease;
+  }
+  .tabs.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
   .tab-btn {
     font-size: 0.78rem;
@@ -209,7 +215,7 @@
           <div class="video-item"><img src="image0.gif" alt="Animation 4"/></div>
         </div>
         <div class="video-row-1">
-          <div class="video-item rectangular"><video src="ANIMsonplusfort.mp4" muted loop autoplay playsinline></video></div>
+          <div class="video-item rectangular"><video src="ANIM_sonplusfort.mp4" muted loop autoplay playsinline></video></div>
         </div>
       </div>
     </section>
@@ -242,7 +248,7 @@
   function activateTab(tabName) {
     tabBtns.forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
     tabPanels.forEach(p => p.classList.toggle("active", p.id === tabName));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   }
 
   tabBtns.forEach(btn => {
@@ -278,13 +284,19 @@
   );
   focusTargets.forEach(el => observer.observe(el));
 
+  // --- Masquer l'overlay des onglets lors du clic sur un fichier (image/vidéo) ---
+  const tabsOverlay = document.querySelector(".tabs");
+  function hideTabsOverlay() { tabsOverlay.classList.add("hidden"); }
+  function showTabsOverlay() { tabsOverlay.classList.remove("hidden"); }
+
   // --- Vidéos : lecture en boucle façon gif, contrôles visibles seulement au survol ---
   videoItems.forEach(item => {
+    item.addEventListener("click", hideTabsOverlay);
     const video = item.querySelector("video");
     if (!video) return; // le 4e slot est un gif (img), pas de contrôles nécessaires
     video.play().catch(() => {});
     item.addEventListener("mouseenter", () => { video.controls = true; });
-    item.addEventListener("mouseleave", () => { video.controls = false; });
+    item.addEventListener("mouseleave", () => { video.controls = false; showTabsOverlay(); });
   });
 
   // --- Modale (galerie uniquement) ---
@@ -296,10 +308,14 @@
       modalImg.src = img.querySelector("img").src;
       modalImg.style.display = "block";
       modal.classList.add("open");
+      hideTabsOverlay();
     });
   });
 
-  modal.addEventListener("click", () => modal.classList.remove("open"));
+  modal.addEventListener("click", () => {
+    modal.classList.remove("open");
+    showTabsOverlay();
+  });
 </script>
 </body>
 </html>
